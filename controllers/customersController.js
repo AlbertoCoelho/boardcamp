@@ -19,9 +19,30 @@ const getAllCustomers = async (req,res) => {
     res.status(200).send(result.rows);
   } catch (err) {
       console.log(err);
-      res.status(500).send("There was an error getting the games!");
+      res.status(500).send("There was an error getting the customers!");
   }
 }
 
-const modulesCustomerController = { getAllCustomers };
+const getCustomer = async (req,res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await db.query(`
+      SELECT *
+      FROM customers
+      WHERE id=$1
+    `,[id]);
+
+    if(result.rowCount === 0 ){
+      res.sendStatus(404);
+    }
+
+    res.send(result.rows[0]);
+  } catch(err) {
+      console.log(err);
+      res.status(500).send("There was an error getting the customer!");
+  }
+}
+
+const modulesCustomerController = { getAllCustomers, getCustomer };
 export default modulesCustomerController;
