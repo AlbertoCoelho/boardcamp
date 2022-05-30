@@ -7,6 +7,6 @@ const gamesRouter = Router();
 const { getAllGames,addGame } = modulesGamesController;
 
 gamesRouter.get("/games", getAllGames);
-// gamesRouter.post("/games",validateGame, addGame);
+gamesRouter.post("/games",validateGame, addGame);
 
 export default gamesRouter;

@@ -9,9 +9,7 @@ const validateGame = (req,res,next) => {
     res.sendStatus(400);
     return;
   }
-
   
-
   next();
 }
 
