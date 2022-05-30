@@ -44,5 +44,33 @@ const getCustomer = async (req,res) => {
   }
 }
 
-const modulesCustomerController = { getAllCustomers, getCustomer };
+const addCustomer = async (req,res) => {
+  try{
+    const customer = req.body;
+
+    const hasTheCustomer = await db.query(`
+      SELECT * 
+      FROM customers 
+      WHERE cpf=$1
+      `,[customer.cpf]);
+
+      if(hasTheCustomer.rowCount !== 0 ){
+        res.sendStatus(409);
+        return;
+      }
+
+    await db.query(`
+    INSERT INTO customers (name,phone,cpf,birthday) 
+    VALUES ($1, $2, $3, $4);
+    `,[customer.name, customer.phone, customer.cpf, customer.birthday])
+
+    res.sendStatus(201);
+
+  } catch (err) {
+      console.log(err);
+      res.status(500).send("There was an error getting the recipes!");
+  }
+}
+
+const modulesCustomerController = { getAllCustomers, getCustomer,addCustomer };
 export default modulesCustomerController;

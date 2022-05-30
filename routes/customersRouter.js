@@ -4,10 +4,10 @@ import validateCustomer from "../middlewares/customerValidator.js";
 
 const customersRouter = Router();
 
-const { getAllCustomers,getCustomer } = modulesCustomerController;
+const { getAllCustomers,getCustomer,addCustomer } = modulesCustomerController;
 
 customersRouter.get("/customers", getAllCustomers);
 customersRouter.get("/customers/:id", getCustomer);
-//gamesRouter.post("/games",validateCustomer, addGame);
+customersRouter.post("/customers",validateCustomer, addCustomer);
 
 export default customersRouter;
