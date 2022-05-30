@@ -4,13 +4,13 @@ const getAllGames = async (req,res) => {
   const { name } = req.query;
 
   try{
-    const param= [];
+    const param = [];
     let query ='';
     if(name){
       query = `WHERE games.name ILIKE $1`;
       param.push(`${name}%`);
     }
-    console.log(query);
+
     const result = await db.query(`
       SELECT games.*,categories.name AS categoryName
       FROM games

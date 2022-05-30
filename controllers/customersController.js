@@ -96,7 +96,7 @@ const updateCustomer = async (req,res) => {
     WHERE id=$5
     `,[customer.name, customer.phone, customer.cpf, customer.birthday, id]);
 
-    res.sendStatus(201);
+    res.sendStatus(200);
   } catch (err) {
       console.log(err);
       res.status(500).send("There was an error updating the client!")
