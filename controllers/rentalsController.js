@@ -1,4 +1,5 @@
 import db from "../db.js";
+import dayjs from "dayjs";
 
 const getAllRentals = async (req,res) => {
   const { customerId, gameId } = req.query;
@@ -35,8 +36,7 @@ const getAllRentals = async (req,res) => {
     }
     
 
-    const result = await db.query( query,param);
-    console.log(result.fields.map(field => field.name))
+    const result = await db.query(query,param);
 
     res.status(200).send(result.rows.map(row => {
       const [
@@ -71,45 +71,61 @@ const getAllRentals = async (req,res) => {
   }
 }
 
-// const addGame = async (req,res) => {
-//   try{
-//     const game = req.body;
+const addRental = async (req,res) => {
+  const day = dayjs();
 
-//     const hasTheGame = await db.query(`
-//       SELECT * 
-//       FROM games 
-//       WHERE name=$1
-//       `,[game.name]);
+  try{
+    const { customerId,gameId,daysRented } = req.body;
 
-//     const categoryExists = await db.query(`
-//         SELECT id
-//         FROM categories
-//         WHERE id=$1
-//     `,[game.categoryId]);
+    const hasTheGame = await db.query(`
+      SELECT * 
+      FROM games 
+      WHERE id=$1
+      `,[gameId]);
 
-//       if(hasTheGame.rowCount !== 0 ){
-//         res.sendStatus(409);
-//         return;
-//       }
+    const customerExist = await db.query(`
+        SELECT id
+        FROM customers
+        WHERE id=$1
+    `,[customerId]);
 
-//       if(categoryExists.rowCount === 0){
-//         res.sendStatus(400);
-//         return;
-//       }
+    const gameAvailable = await db.query(`
+    SELECT *
+    FROM rentals
+    WHERE "gameId" = $1 
+    AND "returnDate" is null
+    `,[gameId]);
 
-//     await db.query(`
-//     INSERT INTO games (name,image,"stockTotal","categoryId","pricePerDay") 
-//     VALUES ($1, $2, $3, $4, $5);
-//     `,[game.name, game.image, game.stockTotal,game.categoryId,game.pricePerDay])
+      if(hasTheGame.rowCount === 0 ){
+        res.sendStatus(400);
+        return;
+      }
 
-//     res.sendStatus(201);
+      if(customerExist.rowCount === 0){
+        res.sendStatus(400);
+        return;
+      }
 
-//   } catch (err) {
-//       console.log(err);
-//       res.status(500).send("There was an error adding the game!");
-//   }
-// }
+      if(hasTheGame.rows[0].stockTotal === gameAvailable.rowCount){
+        res.sendStatus(400);
+        return;
+      }
+
+    const originalPrice = daysRented * hasTheGame.rows[0].pricePerDay;
+
+    await db.query(`
+    INSERT INTO rentals ("customerId","gameId","rentDate","daysRented","returnDate","originalPrice","delayFee") 
+    VALUES ($1, $2, $3, $4, null, $5, null);
+    `,[customerId,gameId,day.format("YYYY-MM-DD"),daysRented,originalPrice])
+
+    res.sendStatus(201);
+
+  } catch (err) {
+      console.log(err);
+      res.status(500).send("There was an error adding the game!");
+  }
+}
 
 
-const modulesRentalController = { getAllRentals };
+const modulesRentalController = { getAllRentals,addRental };
 export default modulesRentalController;

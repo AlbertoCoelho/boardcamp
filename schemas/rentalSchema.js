@@ -8,6 +8,7 @@ const rentalSchema = joi.object({
   .required(),
 
   daysRented: joi.number()
+  .min(1)
   .required(),
 })
 
