@@ -93,7 +93,7 @@ const addRental = async (req,res) => {
     SELECT *
     FROM rentals
     WHERE "gameId" = $1 
-    AND "returnDate" is null
+    AND "returnDate" IS null
     `,[gameId]);
 
       if(hasTheGame.rowCount === 0 ){
@@ -122,10 +122,45 @@ const addRental = async (req,res) => {
 
   } catch (err) {
       console.log(err);
-      res.status(500).send("There was an error adding the game!");
+      res.status(500).send("There was an error adding the rental!");
   }
 }
 
+const deleteRental = async (req,res) => {
+  const { id } = req.params;
 
-const modulesRentalController = { getAllRentals,addRental };
+  try {
+    const idExist = await db.query(`
+    SELECT *
+    FROM rentals
+    WHERE id = $1 
+    `,[id])
+
+    if(idExist.rowCount === 0 ){
+      res.sendStatus(404);
+      return;
+    }
+
+    if(idExist.rows[0].returnDate !== null){
+      res.sendStatus(400);
+      return;
+    }
+
+    await db.query(`
+    DELETE
+    FROM rentals
+    WHERE id = $1
+    `,[id]);
+
+    res.sendStatus(200);
+
+  } catch (err){
+    console.log(err);
+    res.status(500).send("There was an error deleting the rental!");
+  }
+
+}
+
+
+const modulesRentalController = { getAllRentals,addRental,deleteRental };
 export default modulesRentalController;

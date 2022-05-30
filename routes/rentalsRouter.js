@@ -4,9 +4,11 @@ import validateRental from "../middlewares/rentalValidator.js";
 
 const rentalsRouter = Router();
 
-const { getAllRentals,addRental } = modulesRentalController;
+const { getAllRentals,addRental,deleteRental } = modulesRentalController;
 
 rentalsRouter.get("/rentals", getAllRentals);
 rentalsRouter.post("/rentals", validateRental, addRental);
+rentalsRouter.post("/rentals/:id/return");
+rentalsRouter.delete("/rentals/:id", deleteRental);
 
 export default rentalsRouter;
