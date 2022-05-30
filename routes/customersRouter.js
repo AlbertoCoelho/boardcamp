@@ -8,7 +8,7 @@ const { getAllCustomers,getCustomer,addCustomer,updateCustomer } = modulesCustom
 
 customersRouter.get("/customers", getAllCustomers);
 customersRouter.get("/customers/:id", getCustomer);
-customersRouter.post("/customers",validateCustomer, addCustomer);
-customersRouter.put("/customers/:id", updateCustomer);
+customersRouter.post("/customers", validateCustomer, addCustomer);
+customersRouter.put("/customers/:id", validateCustomer, updateCustomer);
 
 export default customersRouter;

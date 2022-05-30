@@ -60,7 +60,7 @@ const addGame = async (req,res) => {
 
   } catch (err) {
       console.log(err);
-      res.status(500).send("There was an error getting the recipes!");
+      res.status(500).send("There was an error adding the game!");
   }
 }
 
