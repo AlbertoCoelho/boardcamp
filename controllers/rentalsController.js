@@ -161,6 +161,46 @@ const deleteRental = async (req,res) => {
 
 }
 
+const finalizeRental = async (req,res) => {
+  const { id } = req.params;
+  const theDayIClosed = dayjs().format("YYYY-MM-DD");
 
-const modulesRentalController = { getAllRentals,addRental,deleteRental };
+  try {
+    const idExist = await db.query(`
+    SELECT *
+    FROM rentals
+    WHERE id = $1 
+    `,[id])
+
+    if(idExist.rowCount === 0 ){
+      res.sendStatus(404);
+      return;
+    }
+
+    if(idExist.rows[0].returnDate !== null){
+      res.sendStatus(400);
+      return;
+    }
+
+    const rentDate = idExist.rows[0].rentDate;
+    const delay = dayjs().diff(rentDate, 'day') - idExist.rows[0].daysRented;
+    const price = idExist.rows[0].originalPrice / idExist.rows[0].daysRented;
+    const delayFee = delay > 0 && delay * price;
+
+    await db.query(`
+    UPDATE rentals
+    SET "returnDate" = $1, "delayFee" = $2
+    WHERE id = $3`
+    , [theDayIClosed, delayFee, id]);
+
+    res.sendStatus(200);
+
+  } catch (err) {
+      console.log(err);
+      res.status(500).send("An error occurred while finalizing the rental!");
+  }
+}
+
+
+const modulesRentalController = { getAllRentals,addRental,deleteRental,finalizeRental };
 export default modulesRentalController;
